@@ -1,0 +1,48 @@
+pragma solidity ^0.4.11;
+
+contract gvcoin_ico{
+    //Introducing the maximum number of gvcoins for sale
+    uint public max_gvcoins = 1000000;
+    
+    //adding conversion to the gvcoins 1$=1000 gv gvcoins
+    
+    uint public usd_to_gvcoins = 1000; 
+    
+    //introducing the total number of the gvcoins that have been bought by the investors
+    uint public total_gvcoins_bought = 0;
+    
+    //mapping from the investor address to its equity in gvcoins and usd
+    
+    mapping(address => uint)equity_gvcoins;
+    mapping(address => uint)equity_usd;
+    //checking investor can make the money
+    
+    modifier can_buy_gvcoins(uint usd_invested){
+        require(((usd_invested*usd_to_gvcoins) + total_gvcoins_bought)<=max_gvcoins);
+    
+        _;
+    }
+    
+ //getting the equity in gvcoins of an investor
+ function equity_in_gvcoins(address investor) external constant returns(uint){
+     return equity_gvcoins[investor];
+ }
+ function equity_in_usd(address investor) external constant returns(uint){
+     return equity_usd[investor];
+  }
+  //buying HadCoins
+  function buy_gvcoins(address investor, uint usd_invested) external 
+  can_buy_gvcoins(usd_invested){
+    uint gvcoins_bought = usd_invested * usd_to_gvcoins;
+      equity_gvcoins[investor] += gvcoins_bought;
+      equity_usd[investor] = equity_gvcoins[investor] / 1000; 
+      total_gvcoins_bought += gvcoins_bought;
+  }
+  //selling gvcoins
+    function sell_gvcoins(address investor, uint gvcoins_sold) external {
+          equity_gvcoins[investor] -= gvcoins_sold;
+      equity_usd[investor] = equity_gvcoins[investor] / 1000; 
+      total_gvcoins_bought -= gvcoins_sold ;
+  }
+  
+}
